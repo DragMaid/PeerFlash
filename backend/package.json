@@ -2,11 +2,11 @@
   "name": "peerflash-backend",
   "version": "1.0.0",
   "description": "Backend for PeerFlash - Decentralized Flashcard Learning Platform",
-  "main": "src/index.js",
+  "main": "src/index.ts",
   "type": "module",
   "scripts": {
-    "start": "NODE_OPTIONS='--loader ts-node/esm' node src/index.ts",
-    "dev": "NODE_OPTIONS='--loader ts-node/esm' nodemon src/index.ts",
+    "start": "NODE_OPTIONS='--import tsx' node src/index.ts",
+    "dev": "NODE_OPTIONS='--import tsx' nodemon src/index.ts",
     "build": "tsc",
     "test": "jest"
   },
@@ -25,6 +25,7 @@
     "mongoose": "^7.0.3",
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
+    "tsx": "^4.19.4",
     "winston": "^3.11.0",
     "xrpl": "^2.14.0"
   },
@@ -39,7 +40,6 @@
     "nodemon": "^2.0.22",
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.0",
-    "ts-node": "^10.9.2",
     "typescript": "^5.0.4"
   }
 }

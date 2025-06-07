@@ -1,7 +1,7 @@
 import express, { Response, RequestHandler } from 'express';
 import { body, param } from 'express-validator';
-import User, { Flashcard, FlashcardDeck } from '../models/User';
-import { uploadToIPFS, getFromIPFS } from '../services/ipfs';
+import User, { Flashcard, FlashcardDeck } from '../models/User.js';
+import { uploadToIPFS, getFromIPFS } from '../services/ipfs.js';
 
 const router = express.Router();
 

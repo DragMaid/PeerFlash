@@ -6,9 +6,9 @@ import morgan from 'morgan';
 import { Client } from 'xrpl';
 import mongoose from 'mongoose';
 import authRoutes from './routes/auth.js';
-import flashcardRoutes from './routes/flashcards';
-import credentialRoutes from './routes/credentials';
-import ipfsRoutes from './routes/ipfs';
+import flashcardRoutes from './routes/flashcards.js';
+import credentialRoutes from './routes/credentials.js';
+import ipfsRoutes from './routes/ipfs.js';
 
 dotenv.config();
 

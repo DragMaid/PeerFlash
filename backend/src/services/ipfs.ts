@@ -1,5 +1,5 @@
 import { create } from 'ipfs-http-client';
-import { FlashcardDeck, Credential } from '../models/User';
+import { FlashcardDeck, Credential } from '../models/User.js';
 
 export type IPFSData = FlashcardDeck | Credential;
 
