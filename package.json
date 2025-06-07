@@ -1,0 +1,41 @@
+{
+  "name": "peerflash",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "prisma:db:up": "docker compose -f db.docker-compose.yaml up -d"
+  },
+  "dependencies": {
+    "@didtools/pkh-ethereum": "^0.6.0",
+    "@prisma/client": "^5.10.0",
+    "@spruceid/didkit-wasm": "0.3.0-rc.0",
+    "next": "14.1.0",
+    "qrcode.react": "^3.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "simple-peer": "^9.11.1",
+    "typescript": "^5.3.3",
+    "web3.storage": "^4.4.0",
+    "xrpl": "^2.14.3",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.19",
+    "@types/react": "^18.2.57",
+    "@types/react-dom": "^18.2.19",
+    "@types/simple-peer": "^9.11.8",
+    "autoprefixer": "^10.4.14",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "14.1.0",
+    "postcss": "^8.4.31",
+    "prisma": "^5.10.0",
+    "tailwindcss": "^3.3.0"
+  }
+}
