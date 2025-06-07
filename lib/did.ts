@@ -1,4 +1,4 @@
-import * as DIDKit from '@spruceid/didkit-wasm';
+let DIDKit = require('@spruceid/didkit-wasm');
 
 let didkit: typeof DIDKit | null = null;
 
@@ -14,10 +14,33 @@ export const generateDID = async (): Promise<{ did: string; privateKey: string }
   const key = didkit.generateEd25519Key();
   const did = didkit.keyToDID('key', key);
   
-  // Store private key securely (in production, use proper encryption)
-  localStorage.setItem('did_private_key', key);
-  
   return { did, privateKey: key };
+};
+
+export const getDIDFromLocalStorage = (): { did: string; privateKey: string } | null => {
+  try {
+    if (typeof window === 'undefined') return null;
+    
+    const did = window.localStorage.getItem('user_did');
+    const privateKey = window.localStorage.getItem('user_private_key');
+    
+    if (!did || !privateKey) return null;
+    
+    return { did, privateKey };
+  } catch (error) {
+    console.error('Error accessing localStorage:', error);
+    return null;
+  }
+};
+
+export const saveDIDToLocalStorage = (did: string, privateKey: string) => {
+  try {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('user_did', did);
+    window.localStorage.setItem('user_private_key', privateKey);
+  } catch (error) {
+    console.error('Error saving to localStorage:', error);
+  }
 };
 
 export const loadDID = async (): Promise<string | null> => {
