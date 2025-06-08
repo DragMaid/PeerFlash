@@ -26,7 +26,6 @@ model FlashcardSet {
   title          String
   subject        String
   tags           String[]
-  difficulty     Int
   description    String?
   creatorDid     String
   ipfsUri        String

@@ -3,14 +3,22 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { getDIDFromLocalStorage } from '@/lib/did';
 
+interface Flashcard {
+  id: string;
+  question: string;
+  answer: string;
+  explanation?: string;
+  imageUrl?: string;
+}
+
 interface FlashcardSet {
   id: string;
   title: string;
   subject: string;
   tags: string[];
-  difficulty: string;
   description: string;
   creatorDid: string;
+  flashcards: Flashcard[];
   createdAt: string;
   updatedAt: string;
 }
@@ -20,6 +28,9 @@ export default function DecksPage() {
   const [flashcardSets, setFlashcardSets] = useState<FlashcardSet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedSet, setSelectedSet] = useState<FlashcardSet | null>(null);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [showAnswer, setShowAnswer] = useState(false);
 
   useEffect(() => {
     const did = getDIDFromLocalStorage();
@@ -35,7 +46,7 @@ export default function DecksPage() {
           throw new Error('Failed to fetch flashcard sets');
         }
         const data = await response.json();
-        setFlashcardSets(data.flashcardSets);
+        setFlashcardSets(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -45,6 +56,32 @@ export default function DecksPage() {
 
     fetchFlashcardSets();
   }, [router]);
+
+  const handleStartRevision = (set: FlashcardSet) => {
+    setSelectedSet(set);
+    setCurrentCardIndex(0);
+    setShowAnswer(false);
+  };
+
+  const handleNextCard = () => {
+    if (selectedSet && currentCardIndex < selectedSet.flashcards.length - 1) {
+      setCurrentCardIndex(prev => prev + 1);
+      setShowAnswer(false);
+    }
+  };
+
+  const handlePreviousCard = () => {
+    if (currentCardIndex > 0) {
+      setCurrentCardIndex(prev => prev - 1);
+      setShowAnswer(false);
+    }
+  };
+
+  const handleExitRevision = () => {
+    setSelectedSet(null);
+    setCurrentCardIndex(0);
+    setShowAnswer(false);
+  };
 
   if (loading) {
     return (
@@ -70,6 +107,90 @@ export default function DecksPage() {
               </div>
               <div className="ml-3">
                 <p className="text-sm text-red-700">{error}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (selectedSet) {
+    const currentCard = selectedSet.flashcards[currentCardIndex];
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">{selectedSet.title}</h2>
+              <button
+                onClick={handleExitRevision}
+                className="text-sm text-gray-600 hover:text-gray-900"
+              >
+                Exit Revision
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <div className="text-sm text-gray-500 mb-2">
+                Card {currentCardIndex + 1} of {selectedSet.flashcards.length}
+              </div>
+              <div className="bg-gray-50 rounded-lg p-6 mb-4">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Question:</h3>
+                <p className="text-gray-700">{currentCard.question}</p>
+                {currentCard.imageUrl && (
+                  <img
+                    src={currentCard.imageUrl}
+                    alt="Question illustration"
+                    className="mt-4 max-w-full h-auto rounded-lg"
+                  />
+                )}
+              </div>
+
+              {showAnswer && (
+                <div className="bg-indigo-50 rounded-lg p-6 mb-4">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Answer:</h3>
+                  <p className="text-gray-700">{currentCard.answer}</p>
+                  {currentCard.explanation && (
+                    <div className="mt-4">
+                      <h4 className="text-sm font-medium text-gray-900 mb-2">Explanation:</h4>
+                      <p className="text-gray-600">{currentCard.explanation}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="flex justify-between items-center">
+                <button
+                  onClick={handlePreviousCard}
+                  disabled={currentCardIndex === 0}
+                  className={`px-4 py-2 rounded-md text-sm font-medium ${
+                    currentCardIndex === 0
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+                  }`}
+                >
+                  Previous
+                </button>
+
+                <button
+                  onClick={() => setShowAnswer(!showAnswer)}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700"
+                >
+                  {showAnswer ? 'Hide Answer' : 'Show Answer'}
+                </button>
+
+                <button
+                  onClick={handleNextCard}
+                  disabled={currentCardIndex === selectedSet.flashcards.length - 1}
+                  className={`px-4 py-2 rounded-md text-sm font-medium ${
+                    currentCardIndex === selectedSet.flashcards.length - 1
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+                  }`}
+                >
+                  Next
+                </button>
               </div>
             </div>
           </div>
@@ -114,16 +235,9 @@ export default function DecksPage() {
                 <div className="p-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-medium text-gray-900 truncate">{set.title}</h3>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      set.difficulty === 'beginner' ? 'bg-green-100 text-green-800' :
-                      set.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {set.difficulty}
-                    </span>
                   </div>
                   <p className="mt-1 text-sm text-gray-500">{set.subject}</p>
-                  {set.tags.length > 0 && (
+                  {set.tags && set.tags.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-2">
                       {set.tags.map((tag) => (
                         <span
@@ -136,13 +250,24 @@ export default function DecksPage() {
                     </div>
                   )}
                   <p className="mt-2 text-sm text-gray-600 line-clamp-2">{set.description}</p>
-                  <div className="mt-4 flex justify-end">
-                    <Link
-                      href={`/decks/${set.id}`}
-                      className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-                    >
-                      View Deck
-                    </Link>
+                  <div className="mt-4 flex justify-between items-center">
+                    <span className="text-sm text-gray-500">
+                      {set.flashcards?.length || 0} cards
+                    </span>
+                    <div className="space-x-2">
+                      <button
+                        onClick={() => handleStartRevision(set)}
+                        className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                      >
+                        Start Revision
+                      </button>
+                      <Link
+                        href={`/decks/${set.id}`}
+                        className="text-sm font-medium text-gray-600 hover:text-gray-500"
+                      >
+                        View Details
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
