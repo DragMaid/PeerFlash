@@ -13,6 +13,8 @@ model User {
   displayName   String
   major         String
   avatarUrl     String?
+  nonce         String?
+  nonceExpiresAt DateTime?
   credentials   Credential[]
   flashcardSets FlashcardSet[]
   createdAt     DateTime @default(now())
