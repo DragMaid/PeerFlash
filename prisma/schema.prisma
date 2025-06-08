@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  did           String   @unique
+  displayName   String
+  major         String
+  avatarUrl     String?
+  credentials   Credential[]
+  flashcardSets FlashcardSet[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model FlashcardSet {
+  id             String   @id @default(cuid())
+  title          String
+  subject        String
+  tags           String[]
+  difficulty     Int
+  description    String?
+  creatorDid     String
+  ipfsUri        String
+  mptTokenId     String?
+  parentTokenId  String?
+  reuseCount     Int      @default(0)
+  trustScore     Float    @default(0)
+  flashcards     Flashcard[]
+  creator        User     @relation(fields: [creatorDid], references: [did])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Flashcard {
+  id          String   @id @default(cuid())
+  question    String
+  answer      String
+  explanation String?
+  imageUrl    String?
+  flashcardSet FlashcardSet @relation(fields: [setId], references: [id])
+  setId       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Credential {
+  id           String   @id @default(cuid())
+  type         String
+  subjectDid   String
+  issuerDid    String
+  credentialId String   @unique
+  issuedAt     DateTime @default(now())
+  user         User     @relation(fields: [subjectDid], references: [did])
+  updatedAt    DateTime @updatedAt
+} 
