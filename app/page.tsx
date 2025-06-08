@@ -1,9 +1,50 @@
-import React from 'react';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
+'use client';
 
-export default function Home() {
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { getDIDFromLocalStorage } from '@/lib/did';
+
+export default function HomePage() {
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const did = getDIDFromLocalStorage();
+      setIsLoading(false);
+    };
+    checkAuth();
+  }, []);
+
+  const handleBrowseClick = () => {
+    const did = getDIDFromLocalStorage();
+    if (!did) {
+      router.push('/signup');
+    } else {
+      router.push('/decks');
+    }
+  };
+
+  const handleCreateClick = () => {
+    const did = getDIDFromLocalStorage();
+    if (!did) {
+      router.push('/signup');
+    } else {
+      router.push('/create');
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -18,20 +59,20 @@ export default function Home() {
           </p>
           <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
             <div className="rounded-md shadow">
-              <Link
-                href="/decks"
+              <button
+                onClick={handleBrowseClick}
                 className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 md:py-4 md:text-lg md:px-10"
               >
                 Browse Decks
-              </Link>
+              </button>
             </div>
             <div className="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
-              <Link
-                href="/create"
+              <button
+                onClick={handleCreateClick}
                 className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-primary-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
               >
                 Create Deck
-              </Link>
+              </button>
             </div>
           </div>
         </div>
